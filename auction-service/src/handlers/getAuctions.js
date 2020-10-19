@@ -1,9 +1,6 @@
 import AWS from 'aws-sdk';
-import middy from '@middy/core';
-import httpJsonBodyParse from '@middy/http-json-body-parser';
-import httpEventNormalizer from '@middy/http-event-normalizer';
-import httpErrorHandler from '@middy/http-error-handler';
 import createError from 'http-errors';
+import commonMiddleware from '../lib/commonMiddleware';
 
 /**
  * @param {object} event: Object that contains all information (params, query) about the event (http)
@@ -35,7 +32,4 @@ async function getAuctions(event, context) {
   };
 }
 
-export const handler = middy(getAuctions)
-  .use(httpJsonBodyParse())
-  .use(httpEventNormalizer())
-  .use(httpErrorHandler());
+export const handler = commonMiddleware(getAuctions);
