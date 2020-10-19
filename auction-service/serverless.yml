@@ -11,26 +11,13 @@ provider:
   memorySize: 256
   stage: ${opt:stage, 'dev'}
   region: us-east-1
+  environment:
+    AUCTIONS_TABLE_NAME: ${self.custom.AuctionsTable.name}
   iamRolesStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-      Resource:
-        - arn:aws:dynamodb:#{{AWS::Region}}:#{{AWS::AccountId}}:table/AuctionsTable
-
+    - ${file(iam/AuctionsTableIAM.yml):AuctionsTableIAM}
 resources:
   Resources:
-    AuctionsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: AuctionsTable
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
+    AuctionsTable: ${file(resources/AuctionsTable.yml):AuctionsTable}
 
 functions:
   createAuction:
@@ -39,3 +26,9 @@ functions:
       - http:
           method: POST
           path: /auction
+custom:
+  AuctionsTable:
+    name: !Ref AuctionsTable
+    arn: !GetAtt AuctionsTable.Arn
+  bundle:
+    linting: false
